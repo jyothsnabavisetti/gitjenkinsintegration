@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 80
+        threshold: 0
+  precision: 2
+  round: down
+  range: "0...100"
+
+comment:
+  layout: "reach, diff, flags, files"
+
+notify:
+  require_ci_to_pass: yes

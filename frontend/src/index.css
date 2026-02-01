@@ -1,0 +1,6 @@
+body { font-family: system-ui, Arial, sans-serif; margin: 2rem; }
+.container { max-width: 900px; margin: 0 auto; }
+input[type=file] { display:block; margin-bottom: 1rem; }
+img { max-width: 100%; border: 1px solid #ddd; padding: 8px; background: #fff; }
+textarea { width: 100%; font-family: monospace; }
+.error { color: red; margin-top: 1rem; }
