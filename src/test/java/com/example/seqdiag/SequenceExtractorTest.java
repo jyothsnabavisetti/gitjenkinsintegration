@@ -23,7 +23,7 @@ public class SequenceExtractorTest {
 
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(temp))) {
             zos.putNextEntry(new ZipEntry("A.java"));
-            String a = "public class A { public void m() { new B().n(); } }";
+            String a = "public class A { private B b = new B(); public void m() { b.n(); } }";
             zos.write(a.getBytes());
             zos.closeEntry();
 

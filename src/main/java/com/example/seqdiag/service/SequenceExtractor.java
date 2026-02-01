@@ -39,7 +39,14 @@ public class SequenceExtractor {
         List<Call> calls = new ArrayList<>();
         Set<String> participants = new HashSet<>();
 
-        JavaParser parser = new JavaParser();
+        // Configure symbol solver to resolve types within the unzipped project
+        com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver combinedSolver = new com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver();
+        combinedSolver.add(new com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver());
+        combinedSolver.add(new com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver(temp));
+        com.github.javaparser.symbolsolver.JavaSymbolSolver symbolSolver = new com.github.javaparser.symbolsolver.JavaSymbolSolver(combinedSolver);
+        com.github.javaparser.ParserConfiguration cfg = new com.github.javaparser.ParserConfiguration().setSymbolResolver(symbolSolver);
+        JavaParser parser = new JavaParser(cfg);
+
         for (File f : javaFiles) {
             try (InputStream in = Files.newInputStream(f.toPath())) {
                 CompilationUnit cu = parser.parse(in).getResult().orElse(null);
@@ -52,7 +59,17 @@ public class SequenceExtractor {
                         if (!md.getBody().isPresent()) continue;
                         for (MethodCallExpr mce : md.findAll(MethodCallExpr.class)) {
                             String methodName = mce.getNameAsString();
-                            String calleeClass = mce.getScope().map(Object::toString).orElse(className);
+                            String calleeClass = caller; // fallback
+                            try {
+                                com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration rmd = mce.resolve();
+                                calleeClass = rmd.declaringType().getQualifiedName();
+                                // simplify to short name
+                                if (calleeClass.contains(".")) calleeClass = calleeClass.substring(calleeClass.lastIndexOf('.') + 1);
+                            } catch (Exception ex) {
+                                // fallback to scope text
+                                calleeClass = mce.getScope().map(Object::toString).orElse(caller);
+                            }
+
                             participants.add(calleeClass);
                             calls.add(new Call(caller, calleeClass, methodName));
                         }
