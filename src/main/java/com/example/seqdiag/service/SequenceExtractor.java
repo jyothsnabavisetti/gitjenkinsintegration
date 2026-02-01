@@ -44,6 +44,24 @@ public class SequenceExtractor {
         com.github.javaparser.ParserConfiguration cfg = new com.github.javaparser.ParserConfiguration().setSymbolResolver(symbolSolver);
         JavaParser parser = new JavaParser(cfg);
 
+        // Build a set of project classes (qualified + simple names) from the .java sources
+        Set<String> projectQualifiedNames = new HashSet<>();
+        Set<String> projectSimpleNames = new HashSet<>();
+        for (File f : javaFiles) {
+            try (InputStream in = Files.newInputStream(f.toPath())) {
+                CompilationUnit cu = parser.parse(in).getResult().orElse(null);
+                if (cu == null) continue;
+                String pkg = cu.getPackageDeclaration().map(pd -> pd.getNameAsString()).orElse("");
+                for (ClassOrInterfaceDeclaration cls : cu.findAll(ClassOrInterfaceDeclaration.class)) {
+                    String simple = cls.getNameAsString();
+                    projectSimpleNames.add(simple);
+                    String fq = pkg.isEmpty() ? simple : pkg + "." + simple;
+                    projectQualifiedNames.add(fq);
+                }
+            }
+        }
+
+        // Second pass: extract calls but only include callees that are project classes (defined in .java sources)
         for (File f : javaFiles) {
             try (InputStream in = Files.newInputStream(f.toPath())) {
                 CompilationUnit cu = parser.parse(in).getResult().orElse(null);
@@ -56,19 +74,31 @@ public class SequenceExtractor {
                         if (!md.getBody().isPresent()) continue;
                         for (MethodCallExpr mce : md.findAll(MethodCallExpr.class)) {
                             String methodName = mce.getNameAsString();
-                            String calleeClass = caller; // fallback
+                            String calleeSimple = caller; // fallback
+                            boolean isProjectClass = false;
                             try {
                                 com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration rmd = mce.resolve();
-                                calleeClass = rmd.declaringType().getQualifiedName();
-                                // simplify to short name
-                                if (calleeClass.contains(".")) calleeClass = calleeClass.substring(calleeClass.lastIndexOf('.') + 1);
+                                String calleeQualified = rmd.declaringType().getQualifiedName();
+                                String simple = calleeQualified.contains(".") ? calleeQualified.substring(calleeQualified.lastIndexOf('.') + 1) : calleeQualified;
+                                if (projectQualifiedNames.contains(calleeQualified) || projectSimpleNames.contains(simple)) {
+                                    calleeSimple = simple;
+                                    isProjectClass = true;
+                                }
                             } catch (Exception ex) {
                                 // fallback to scope text
-                                calleeClass = mce.getScope().map(Object::toString).orElse(caller);
+                                String scopeText = mce.getScope().map(Object::toString).orElse("");
+                                String simple = scopeText.contains(".") ? scopeText.substring(scopeText.lastIndexOf('.') + 1) : scopeText;
+                                if (projectSimpleNames.contains(simple)) {
+                                    calleeSimple = simple;
+                                    isProjectClass = true;
+                                }
                             }
 
-                            participants.add(calleeClass);
-                            calls.add(new Call(caller, calleeClass, methodName));
+                            // skip calls to non-project (sdk/third-party) classes
+                            if (!isProjectClass) continue;
+
+                            participants.add(calleeSimple);
+                            calls.add(new Call(caller, calleeSimple, methodName));
                         }
                     }
                 }

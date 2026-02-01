@@ -49,9 +49,20 @@ npm run build
 
 - Quick API test (uploads ZIP and saves PNG):
 
+Included sample project: `examples/sample-project` (zip it and upload):
+
 ```bash
-curl -s -X POST -F "file=@/path/to/project.zip" http://localhost:8080/api/upload \
+# create a zip from the included sample
+cd examples/sample-project
+zip -r ../../examples/sample-project.zip .
+
+# upload and save PNG
+curl -s -X POST -F "file=@examples/sample-project.zip" http://localhost:8080/api/upload \
   | jq -r '.pngBase64' | base64 --decode > diagram.png
+
+# Or upload any project zip:
+# curl -s -X POST -F "file=@/path/to/project.zip" http://localhost:8080/api/upload \
+#   | jq -r '.pngBase64' | base64 --decode > diagram.png
 ```
 
 - Run tests:
