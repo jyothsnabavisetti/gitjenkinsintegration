@@ -147,19 +147,54 @@
             </activation>
             <build>
                 <plugins>
+                    <!-- Try multiple Node versions via script, then use the installed npm to build the frontend -->
                     <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.12.1</version>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
-                                <id>install node and npm</id>
+                                <id>auto-install-node</id>
+                                <phase>generate-resources</phase>
                                 <goals>
-                                    <goal>install-node-and-npm</goal>
+                                    <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <nodeVersion>v20.24.0</nodeVersion>
-                                    <npmVersion>9.8.1</npmVersion>
+                                    <executable>bash</executable>
+                                    <workingDirectory>${project.basedir}</workingDirectory>
+                                    <arguments>
+                                        <argument>scripts/install_node.sh</argument>
+                                        <argument>${project.basedir}/frontend/node</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>npm install local</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${project.basedir}/frontend/node/bin/npm</executable>
+                                    <workingDirectory>${project.basedir}/frontend</workingDirectory>
+                                    <arguments>
+                                        <argument>install</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>npm run build local</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${project.basedir}/frontend/node/bin/npm</executable>
+                                    <workingDirectory>${project.basedir}/frontend</workingDirectory>
+                                    <arguments>
+                                        <argument>run</argument>
+                                        <argument>build</argument>
+                                    </arguments>
                                 </configuration>
                             </execution>
                         </executions>

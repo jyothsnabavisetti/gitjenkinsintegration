@@ -37,11 +37,13 @@ java -jar target/seqdiag-0.0.1-SNAPSHOT.jar
 
 The Spring Boot app serves the frontend UI from `/` (static files copied into the JAR during the build).
 
-If you do NOT have Node installed locally, you can ask Maven to download and install Node during the build by adding `-Dinstall.node=true`:
+If you do NOT have Node installed locally, you can ask Maven to download and install Node during the build by adding `-Dinstall.node=true`. The build will try several recent Node LTS/patch versions automatically and use the first that downloads successfully:
 
 ```bash
 mvn -DskipTests -Dinstall.node=true package
 ```
+
+If the automatic download cannot find a valid Node binary in your network environment, either install Node locally and run `mvn -DskipTests package`, or build the frontend separately (`cd frontend && npm run build`).
 
 Alternatively, build the frontend alone:
 
