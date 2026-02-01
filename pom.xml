@@ -9,6 +9,9 @@
     <properties>
         <java.version>17</java.version>
         <spring-boot.version>3.1.6</spring-boot.version>
+        <jacoco.version>0.8.13</jacoco.version>
+        <jacoco.skip>false</jacoco.skip>
+        <spotbugs.skip>false</spotbugs.skip>
     </properties>
 
     <dependencyManagement>
@@ -56,10 +59,40 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.1.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -105,6 +138,7 @@
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>4.7.3.0</version>
                 <configuration>
+                    <skip>${spotbugs.skip}</skip>
                     <failOnError>true</failOnError>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
@@ -124,7 +158,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.4.2</version>
+                <version>3.1.2</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <failOnViolation>true</failOnViolation>
@@ -144,7 +178,10 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.11</version>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <skip>${jacoco.skip}</skip>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>

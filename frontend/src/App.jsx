@@ -6,6 +6,7 @@ export default function App() {
   const [png, setPng] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [includeExternal, setIncludeExternal] = useState(false)
 
   const submit = async (e) => {
     e.preventDefault()
@@ -14,6 +15,7 @@ export default function App() {
     setError('')
     const form = new FormData()
     form.append('file', file)
+    form.append('includeExternal', includeExternal.toString())
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: form })
       if (!res.ok) throw new Error('Upload failed: ' + res.statusText)
@@ -32,6 +34,9 @@ export default function App() {
       <h1>Seq Diagram Generator</h1>
       <form onSubmit={submit}>
         <input type="file" accept=".zip" onChange={(e) => setFile(e.target.files[0])} />
+        <label style={{ marginLeft: '8px' }}>
+          <input type="checkbox" checked={includeExternal} onChange={(e) => setIncludeExternal(e.target.checked)} /> Include external classes
+        </label>
         <button type="submit" disabled={loading}>Upload</button>
       </form>
 

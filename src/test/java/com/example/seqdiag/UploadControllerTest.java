@@ -19,6 +19,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "java.awt.headless=true")
@@ -53,6 +54,36 @@ public class UploadControllerTest {
                 .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.plantuml").exists())
+                .andExpect(jsonPath("$.pngBase64").exists());
+    }
+
+    @Test
+    public void uploadEndpointIncludeExternalGroupsExternal() throws Exception {
+        MockMvc mvc = MockMvcBuilders.webAppContextSetup(wac).build();
+
+        // Build a small zip where B calls System.out.println
+        File temp = File.createTempFile("proj", ".zip");
+        temp.deleteOnExit();
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(temp))) {
+            zos.putNextEntry(new ZipEntry("A.java"));
+            String a = "public class A { private B b = new B(); public void m() { b.n(); } }";
+            zos.write(a.getBytes());
+            zos.closeEntry();
+
+            zos.putNextEntry(new ZipEntry("B.java"));
+            String b = "public class B { public void n() { System.out.println(\"hi\"); } }";
+            zos.write(b.getBytes());
+            zos.closeEntry();
+        }
+
+        byte[] bytes = java.nio.file.Files.readAllBytes(temp.toPath());
+        MockMultipartFile mp = new MockMultipartFile("file", "proj.zip", "application/zip", bytes);
+
+        mvc.perform(MockMvcRequestBuilders.multipart("/api/upload").file(mp)
+                .param("includeExternal", "true")
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.plantuml").value(containsString("External")))
                 .andExpect(jsonPath("$.pngBase64").exists());
     }
 }
