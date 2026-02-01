@@ -23,9 +23,24 @@ npm install
 npm run dev
 ```
 
-The dev server proxies `/api` to the backend at `http://localhost:8080`. To build for production:
+The dev server proxies `/api` to the backend at `http://localhost:8080`.
+
+Build and run as a single bundled app:
 
 ```bash
+# build backend + frontend and package into a single jar
+mvn -DskipTests package
+
+# run the fat jar
+java -jar target/seqdiag-0.0.1-SNAPSHOT.jar
+```
+
+The Spring Boot app serves the frontend UI from `/` (static files copied into the JAR during the build).
+
+Alternatively, build the frontend alone:
+
+```bash
+cd frontend
 npm run build
 ```
 
