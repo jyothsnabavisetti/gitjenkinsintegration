@@ -24,9 +24,10 @@ public class UploadController {
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadZip(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadZip(@RequestParam("file") MultipartFile file,
+                                       @RequestParam(value = "includeExternal", defaultValue = "false") boolean includeExternal) {
         try {
-            String plantuml = extractor.extractPlantUmlFromZip(file);
+            String plantuml = extractor.extractPlantUmlFromZip(file, includeExternal);
             byte[] png = extractor.renderPlantUmlToPng(plantuml);
             String pngBase64 = Base64.getEncoder().encodeToString(png);
             return ResponseEntity.ok(Map.of("plantuml", plantuml, "pngBase64", pngBase64));

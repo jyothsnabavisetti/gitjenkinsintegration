@@ -24,7 +24,7 @@ import java.util.zip.ZipFile;
 @Service
 public class SequenceExtractor {
 
-    public String extractPlantUmlFromZip(MultipartFile zipFile) throws Exception {
+    public String extractPlantUmlFromZip(MultipartFile zipFile, boolean includeExternal) throws Exception {
         File temp = Files.createTempDirectory("upload").toFile();
         File zipOnDisk = new File(temp, "project.zip");
         try (FileOutputStream fos = new FileOutputStream(zipOnDisk)) {
@@ -94,8 +94,14 @@ public class SequenceExtractor {
                                 }
                             }
 
-                            // skip calls to non-project (sdk/third-party) classes
-                            if (!isProjectClass) continue;
+                            // handle non-project (sdk/third-party) classes
+                            if (!isProjectClass) {
+                                if (includeExternal) {
+                                    calleeSimple = "External";
+                                } else {
+                                    continue;
+                                }
+                            }
 
                             participants.add(calleeSimple);
                             calls.add(new Call(caller, calleeSimple, methodName));
