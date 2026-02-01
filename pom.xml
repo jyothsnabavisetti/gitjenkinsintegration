@@ -11,6 +11,7 @@
         <spring-boot.version>3.1.6</spring-boot.version>
         <jacoco.version>0.8.13</jacoco.version>
         <jacoco.skip>false</jacoco.skip>
+        <spotbugs.skip>false</spotbugs.skip>
     </properties>
 
     <dependencyManagement>
@@ -108,6 +109,7 @@
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>4.7.3.0</version>
                 <configuration>
+                    <skip>${spotbugs.skip}</skip>
                     <failOnError>true</failOnError>
                     <effort>Max</effort>
                     <threshold>Low</threshold>
