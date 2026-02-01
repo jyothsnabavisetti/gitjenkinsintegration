@@ -39,6 +39,8 @@ java -jar target/seqdiag-0.0.1-SNAPSHOT.jar
 
 The Spring Boot app serves the frontend UI from `/` (static files copied into the JAR during the build).
 
+CI runs unit + integration tests on every push/PR. Pushing a git tag matching `v*` triggers the workflow to build and publish a Docker image to GitHub Container Registry (`ghcr.io/<owner>/seqdiag`).
+
 If you do NOT have Node installed locally, you can ask Maven to download and install Node during the build by adding `-Dinstall.node=true`. The build will try several recent Node LTS/patch versions automatically and use the first that downloads successfully:
 
 ```bash
