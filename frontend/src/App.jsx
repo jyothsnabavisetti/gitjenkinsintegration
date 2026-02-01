@@ -29,7 +29,7 @@ export default function App() {
 
   return (
     <div className="container">
-      <h1>SeqDiag Upload</h1>
+      <h1>Seq Diagram Generator</h1>
       <form onSubmit={submit}>
         <input type="file" accept=".zip" onChange={(e) => setFile(e.target.files[0])} />
         <button type="submit" disabled={loading}>Upload</button>

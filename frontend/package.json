@@ -1,5 +1,5 @@
 {
-  "name": "seqdiag-frontend",
+  "name": "seq-diagram-generator-frontend",
   "version": "0.0.1",
   "private": true,
   "scripts": {
