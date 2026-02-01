@@ -70,69 +70,45 @@
                 </configuration>
             </plugin>
 
-            <!-- Build frontend (Vite) and copy produced files into Spring Boot static resources -->
+            <!-- Build frontend (Vite) using system-installed Node/npm (exec-maven-plugin) -->
             <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.12.1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
-                    <!-- Assumes a system-installed Node + npm is available in PATH. If you want the build
-                         to download and install Node automatically, activate the 'install-node' profile
-                         (see profiles section below) or run with -Dinstall.node=true. -->
                     <execution>
                         <id>npm install</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
-                            <workingDirectory>frontend</workingDirectory>
+                            <executable>npm</executable>
+                            <workingDirectory>${project.basedir}/frontend</workingDirectory>
+                            <arguments>
+                                <argument>install</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                     <execution>
                         <id>npm run build</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
                         <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
                         <configuration>
-                            <arguments>run build</arguments>
-                            <workingDirectory>frontend</workingDirectory>
+                            <executable>npm</executable>
+                            <workingDirectory>${project.basedir}/frontend</workingDirectory>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Profile to optionally install Node locally (use -Dinstall.node=true) -->
-            <profile>
-                <id>install-node</id>
-                <activation>
-                    <property>
-                        <name>install.node</name>
-                    </property>
-                </activation>
-                <build>
-                    <plugins>
-                        <plugin>
-                            <groupId>com.github.eirslett</groupId>
-                            <artifactId>frontend-maven-plugin</artifactId>
-                            <version>1.12.1</version>
-                            <executions>
-                                <execution>
-                                    <id>install node and npm</id>
-                                    <goals>
-                                        <goal>install-node-and-npm</goal>
-                                    </goals>
-                                    <configuration>
-                                        <nodeVersion>v20.24.0</nodeVersion>
-                                        <npmVersion>9.8.1</npmVersion>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </build>
-            </profile>
+
 
             <!-- Copy frontend/dist into the JAR's static directory -->
             <plugin>
@@ -160,4 +136,36 @@
 
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>install-node</id>
+            <activation>
+                <property>
+                    <name>install.node</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>1.12.1</version>
+                        <executions>
+                            <execution>
+                                <id>install node and npm</id>
+                                <goals>
+                                    <goal>install-node-and-npm</goal>
+                                </goals>
+                                <configuration>
+                                    <nodeVersion>v20.24.0</nodeVersion>
+                                    <npmVersion>9.8.1</npmVersion>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
