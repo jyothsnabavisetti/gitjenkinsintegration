@@ -52,8 +52,11 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: target/site/jacoco/jacoco.xml
+          flags: unittests
           fail_ci_if_error: true
+          verbose: true
 
   build:
     needs: test
