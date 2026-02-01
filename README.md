@@ -1,5 +1,7 @@
 # SeqDiag
 
+[![CI](https://github.com/jyothsnabavisetti/gitjenkinsintegration/actions/workflows/ci.yml/badge.svg)](https://github.com/jyothsnabavisetti/gitjenkinsintegration/actions/workflows/ci.yml)
+
 Simple Spring Boot app that accepts a ZIP of a Java project and generates a sequence diagram (PlantUML + PNG).
 
 ## Run
