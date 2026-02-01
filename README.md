@@ -28,7 +28,7 @@ The dev server proxies `/api` to the backend at `http://localhost:8080`.
 Build and run as a single bundled app:
 
 ```bash
-# build backend + frontend and package into a single jar
+# build backend + frontend and package into a single jar (requires Node available on PATH)
 mvn -DskipTests package
 
 # run the fat jar
@@ -36,6 +36,12 @@ java -jar target/seqdiag-0.0.1-SNAPSHOT.jar
 ```
 
 The Spring Boot app serves the frontend UI from `/` (static files copied into the JAR during the build).
+
+If you do NOT have Node installed locally, you can ask Maven to download and install Node during the build by adding `-Dinstall.node=true`:
+
+```bash
+mvn -DskipTests -Dinstall.node=true package
+```
 
 Alternatively, build the frontend alone:
 
